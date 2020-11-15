@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:crud_calidad/database.dart';
 
-final String DB_NAME = "contactos1";
+final String DB_NAME = "school";
 
 void main() => runApp(MyApp());
 
@@ -27,14 +27,14 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  List<Ciudad> _list;
+  List<Student> _list;
   DatabaseHelper _databaseHelper;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Sistema CRUD - Ernesto Orellana"),
+        title: Text("Proyecto 1 - Escuela"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
@@ -48,19 +48,46 @@ class HomeState extends State<Home> {
     );
   }
 
+
+
   void insert(BuildContext context) {
-    Ciudad nNombre = new Ciudad();
+    Student student = new Student();
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Nuevo"),
-            content: TextField(
-              onChanged: (value) {
-                nNombre.title = value;
-              },
-              decoration: InputDecoration(labelText: "Título:"),
+            title: Text("Ingreso Alumnos"),
+            content: Center(
+            child: Column(
+              children: <Widget>[
+                Container(
+                  child: TextField(
+                    onChanged: (names) {
+                      student.names = names;
+                    },
+                    decoration: InputDecoration(labelText: "Nombres:"),
+                  ),
+          ),
+                  Container(
+                  child: TextField(
+                    onChanged: (surnames) {
+                      student.surnames = surnames;
+                    },
+                    decoration: InputDecoration(labelText: "Apellidos:"),
+                  ),
+          ),
+                  Container(
+                  child: TextField(
+                    onChanged: (birthday) {
+                      student.birthday = birthday;
+                    },
+                    decoration: InputDecoration(labelText: "Fecha Nacimiento:"),
+                    keyboardType: TextInputType.datetime,
+                  ),
+                )
+              ],
             ),
+          ),
             actions: <Widget>[
               FlatButton(
                 child: Text("Cancelar"),
@@ -72,7 +99,7 @@ class HomeState extends State<Home> {
                 child: Text("Guardar"),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _databaseHelper.insert(nNombre).then((value) {
+                  _databaseHelper.insert(student).then((value) {
                     updateList();
                   });
                 },
@@ -83,8 +110,8 @@ class HomeState extends State<Home> {
   }
 
   void onDeletedRequest(int index) {
-    Ciudad ciudad = _list[index];
-    _databaseHelper.delete(ciudad).then((value) {
+    Student student = _list[index];
+    _databaseHelper.delete(student).then((value) {
       setState(() {
         _list.removeAt(index);
       });
@@ -92,8 +119,8 @@ class HomeState extends State<Home> {
   }
 
   void onUpdateRequest(int index) {
-    Ciudad nNombre = _list[index];
-    final controller = TextEditingController(text: nNombre.title);
+    Student nNombre = _list[index];
+    final controller = TextEditingController(text: nNombre.names);
 
     showDialog(
         context: context,
@@ -103,7 +130,7 @@ class HomeState extends State<Home> {
             content: TextField(
               controller: controller,
               onChanged: (value) {
-                nNombre.title = value;
+                nNombre.names = value;
               },
               decoration: InputDecoration(labelText: "Título:"),
             ),
@@ -141,9 +168,9 @@ class HomeState extends State<Home> {
       return ListView.builder(
           itemCount: _list.length,
           itemBuilder: (BuildContext context, index) {
-            Ciudad ciudad = _list[index];
-            return CiudadWidget(
-                ciudad, onDeletedRequest, index, onUpdateRequest);
+            Student student = _list[index];
+            return StudentWidget(
+                student, onDeletedRequest, index, onUpdateRequest);
           });
     }
   }
@@ -167,23 +194,23 @@ class HomeState extends State<Home> {
 typedef OnDeleted = void Function(int index);
 typedef OnUpdate = void Function(int index);
 
-class CiudadWidget extends StatelessWidget {
-  final Ciudad cuidad;
+class StudentWidget extends StatelessWidget {
+  final Student student;
   final OnDeleted onDeleted;
   final OnUpdate onUpdate;
   final int index;
-  CiudadWidget(this.cuidad, this.onDeleted, this.index, this.onUpdate);
+  StudentWidget(this.student, this.onDeleted, this.index, this.onUpdate);
 
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key("${cuidad.id}"),
+      key: Key("${student.id}"),
       child: Padding(
         padding: EdgeInsets.all(10),
         child: Row(
           children: <Widget>[
             Expanded(
-              child: Text(cuidad.title),
+              child: Text(student.names + '' + student.surnames + ' | ' + student.birthday),
             ),
             IconButton(
               icon: Icon(

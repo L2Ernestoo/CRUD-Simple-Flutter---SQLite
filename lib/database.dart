@@ -9,23 +9,78 @@ abstract class TableElement{
   Map<String, dynamic> toMap();
 }
 
-class Ciudad extends TableElement{
-  static final String TABLE_NAME = "cuidad";
-  String title;
+//Creacion tabla y clase Educacion
 
-  Ciudad({this.title, id}):super(id, TABLE_NAME);
-  factory Ciudad.fromMap(Map<String, dynamic> map){
-    return Ciudad(title: map["title"], id: map["_id"]);
+//Tablas Alumno, Maestro, Grado, Seccion, Inscripccion es-es
+
+class Student extends TableElement{
+  static final String TABLE_NAME = "alumno";
+  String names, surnames, birthday;
+
+  Student({this.names, this.surnames, this.birthday, id}):super(id, TABLE_NAME);
+  factory Student.fromMap(Map<String, dynamic> map){
+    return Student(names: map["names"], surnames: map['surnames'], birthday: map['birthday'], id: map["_id"]);
   }
 
   @override
   void createTable(Database db) {
-    db.rawUpdate("CREATE TABLE ${TABLE_NAME}(_id integer primary key autoincrement, title varchar(30))");
+    db.rawUpdate("CREATE TABLE ${TABLE_NAME}(_id integer primary key autoincrement, names varchar(50), surnames varchar(50), birthday date)");
   }
 
   @override
   Map<String, dynamic> toMap() {
-    var map = <String, dynamic>{"title":this.title};
+    var map = <String, dynamic>{"names":this.names, "surnames":this.surnames, "birthday":this.birthday};
+    if(this.id != null){
+      map["_id"] = id;
+    }
+    return map;
+  }
+
+}
+
+//Class Teachers Table
+class Teacher extends TableElement{
+  static final String TABLE_NAME = "teacher";
+  String names, surnames, birthday, dpi;
+
+  Teacher({this.names, this.surnames, this.birthday, this.dpi, id}):super(id, TABLE_NAME);
+  factory Teacher.fromMap(Map<String, dynamic> map){
+    return Teacher(names: map["names"], surnames: map['surnames'], birthday: map['birthday'], dpi: map['dpi'], id: map["_id"]);
+  }
+
+  @override
+  void createTable(Database db) {
+    db.rawUpdate("CREATE TABLE ${TABLE_NAME}(_id integer primary key autoincrement, names varchar(50), surnames varchar(50), birthday date, dpi varchar(20))");
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{"names":this.names, "surnames":this.surnames, "birthday":this.birthday};
+    if(this.id != null){
+      map["_id"] = id;
+    }
+    return map;
+  }
+
+}
+
+class Grade extends TableElement{
+  static final String TABLE_NAME = "grade";
+  String description;
+
+  Grade({this.description, id}):super(id, TABLE_NAME);
+  factory Grade.fromMap(Map<String, dynamic> map){
+    return Grade(description: map["description"],  id: map["_id"]);
+  }
+
+  @override
+  void createTable(Database db) {
+    db.rawUpdate("CREATE TABLE ${TABLE_NAME}(_id integer primary key autoincrement, description varchar(20))");
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{"description":this.description};
     if(this.id != null){
       map["_id"] = id;
     }
@@ -61,7 +116,7 @@ class DatabaseHelper {
       var db  = await openDatabase(path,
           version: 1,
           onCreate: (Database database, int version) {
-            new Ciudad().createTable(database);
+            new Student().createTable(database);
           });
       return db;
     }catch(e){
@@ -70,13 +125,13 @@ class DatabaseHelper {
     return null;
   }
 
-  Future<List<Ciudad>> getList() async{
+  Future<List<Student>> getList() async{
     Database dbClient = await db;
 
-    List<Map> maps = await dbClient.query(Ciudad.TABLE_NAME,
-        columns: ["_id", "title"]);
+    List<Map> maps = await dbClient.query(Student.TABLE_NAME,
+        columns: ["_id", "names", "surnames", "birthday"]);
 
-    return maps.map((i)=> Ciudad.fromMap(i)).toList();
+    return maps.map((i)=> Student.fromMap(i)).toList();
   }
   Future<TableElement> insert(TableElement element) async {
     var dbClient = await db;
