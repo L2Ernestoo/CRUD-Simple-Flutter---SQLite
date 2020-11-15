@@ -14,7 +14,7 @@ abstract class TableElement{
 //Tablas Alumno, Maestro, Grado, Seccion, Inscripccion es-es
 
 class Student extends TableElement{
-  static final String TABLE_NAME = "alumno";
+  static final String TABLE_NAME = "student";
   String names, surnames, birthday;
 
   Student({this.names, this.surnames, this.birthday, id}):super(id, TABLE_NAME);
@@ -88,7 +88,55 @@ class Grade extends TableElement{
   }
 
 }
+class Section extends TableElement{
+  static final String TABLE_NAME = "section";
+  String description;
 
+  Section({this.description, id}):super(id, TABLE_NAME);
+  factory Section.fromMap(Map<String, dynamic> map){
+    return Section(description: map["description"],  id: map["_id"]);
+  }
+
+  @override
+  void createTable(Database db) {
+    db.rawUpdate("CREATE TABLE ${TABLE_NAME}(_id integer primary key autoincrement, description varchar(20))");
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{"description":this.description};
+    if(this.id != null){
+      map["_id"] = id;
+    }
+    return map;
+  }
+
+}
+
+class Inscription extends TableElement{
+  static final String TABLE_NAME = "inscription";
+  String idStudent, idSection, idGrade, year;
+
+  Inscription({this.idStudent, this.idSection, this.idGrade, this.year, id}):super(id, TABLE_NAME);
+  factory Inscription.fromMap(Map<String, dynamic> map){
+    return Inscription(idStudent: map["idStudent"], idSection: map["idSection"], idGrade: map["idGrade"], year: map["year"],  id: map["_id"]);
+  }
+
+  @override
+  void createTable(Database db) {
+    db.rawUpdate("CREATE TABLE ${TABLE_NAME}(_id integer primary key autoincrement, foreign key(idStudent) references Student(id), foreign key(idSection) references Section(id), foreign key(idGrade) references Grade(id), year date)");
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{"idStudent":this.idStudent, "idSection":this.idSection, "idGrade":this.idGrade, "year":this.year};
+    if(this.id != null){
+      map["_id"] = id;
+    }
+    return map;
+  }
+
+}
 
 final String DB_FILE_NAME = "crub.db";
 
